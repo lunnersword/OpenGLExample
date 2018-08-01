@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "GLHelper",
+        "repositoryURL": "https://github.com/lunnersword/GLHelper",
+        "state": {
+          "branch": null,
+          "revision": "dd5ee615609a57e28e528cab7235ca0a1101f4b5",
+          "version": "0.1.2"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
