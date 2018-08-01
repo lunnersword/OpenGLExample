@@ -17,14 +17,15 @@ public class ExampleRender: BasicRender {
     private var rotation: Float = 0.0
     
     var Vertices = [
-        Vertex(x:  -1, y: -1, z: 0, r: 1, g: 1, b: 1, a: 1),
-        Vertex(x:  1, y:  -1, z: 0, r: 1, g: 1, b: 0, a: 1),
-        Vertex(x: -1, y:  1, z: 0, r: 1, g: 0, b: 1, a: 1),
-        Vertex(x: -1, y: -1, z: 0, r: 0, g: 1, b: 1, a: 1),
+        Vertex(x:  1, y: -1, z: 0, r: 1, g: 0, b: 0, a: 1),
+        Vertex(x:  1, y:  1, z: 0, r: 0, g: 1, b: 0, a: 1),
+        Vertex(x: -1, y:  1, z: 0, r: 0, g: 0, b: 1, a: 1),
+        Vertex(x: -1, y: -1, z: 0, r: 0, g: 0, b: 0, a: 1),
         ]
     
     var Indices: [GLubyte] = [
-        0, 1, 2
+        0, 1, 2,
+        2, 3, 0
     ]
     public override func setup() {
         super.setup()
@@ -63,23 +64,23 @@ public class ExampleRender: BasicRender {
     }
     
     public override func glkViewControllerUpdate(_ controller: GLKViewController) {
-//        var modelViewMatrix = GLKMatrix4MakeTranslation(0.0, 0.0, -6.0)
-//        rotation += 90 * Float(controller.timeSinceLastUpdate)
-//        modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, GLKMathDegreesToRadians(rotation), 0, 0, 1)
-//        //        effect.transform.modelviewMatrix = modelViewMatrix
-//        
-//        let location = program.getUniformLocation(name: "mvMatrix")
-//        let components = MemoryLayout.size(ofValue: modelViewMatrix.m)/MemoryLayout.size(ofValue: modelViewMatrix.m.0)
-//        withUnsafePointer(to: &modelViewMatrix.m) {
-//            $0.withMemoryRebound(to: GLfloat.self, capacity: components) {ptr in
-//                glProgramUniformMatrix4fvEXT(program.program, location, 1, GLboolean(GL_FALSE), ptr)
-//            }
-//        }
+        var modelViewMatrix = GLKMatrix4MakeTranslation(0.0, 0.0, -6.0)
+        rotation += 90 * Float(controller.timeSinceLastUpdate)
+        modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, GLKMathDegreesToRadians(rotation), 0, 0, 1)
+        //        effect.transform.modelviewMatrix = modelViewMatrix
         
+        let location = program.getUniformLocation(name: "mvMatrix")
+        let components = MemoryLayout.size(ofValue: modelViewMatrix.m)/MemoryLayout.size(ofValue: modelViewMatrix.m.0)
+        withUnsafePointer(to: &modelViewMatrix.m) {
+            $0.withMemoryRebound(to: GLfloat.self, capacity: components) {ptr in
+                glProgramUniformMatrix4fvEXT(program.program, location, 1, GLboolean(GL_FALSE), ptr)
+            }
+        }
         
         
         let aspect = fabsf(Float(controller.view.bounds.size.width) / Float(controller.view.bounds.size.height))
-        var projectionMatrix = GLKMatrix4MakeFrustum(-1.0, 1.0, -aspect, aspect, 1.0, 500.0)        //        effect.transform.projectionMatrix = projectionMatrix
+        var projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(65.0), aspect, 4.0, 10.0)
+        //        effect.transform.projectionMatrix = projectionMatrix
         let plocation = program.getUniformLocation(name: "pMatrix")
         let pcomponents = MemoryLayout.size(ofValue: projectionMatrix.m)/MemoryLayout.size(ofValue: projectionMatrix.m.0)
         withUnsafePointer(to: &projectionMatrix.m) {
@@ -95,52 +96,8 @@ public class ExampleRender: BasicRender {
         program.use()
         
         glBindVertexArrayOES(vao)
-        
-        // Draw Arrays...
-        var modelMatrix = GLKMatrix4MakeTranslation(-3.0, 0.0, -5.0)
-        let location = program.getUniformLocation(name: "mvMatrix")
-        let components = MemoryLayout.size(ofValue: modelMatrix.m)/MemoryLayout.size(ofValue: modelMatrix.m.0)
-        withUnsafePointer(to: &modelMatrix.m) {
-            $0.withMemoryRebound(to: GLfloat.self, capacity: components) {ptr in
-                glProgramUniformMatrix4fvEXT(program.program, location, 1, GLboolean(GL_FALSE), ptr)
-            }
-        }
-        
-        
-        glDrawArrays(GLenum(GL_TRIANGLES), 0, 3)
-        
-        // DrawElements
-        modelMatrix = GLKMatrix4MakeTranslation(-1.0, 0.0, -5.0)
-        withUnsafePointer(to: &modelMatrix.m) {
-            $0.withMemoryRebound(to: GLfloat.self, capacity: components) {ptr in
-                glProgramUniformMatrix4fvEXT(program.program, location, 1, GLboolean(GL_FALSE), ptr)
-            }
-        }
-        glDrawElements(GLenum(GL_TRIANGLES), 3, GLenum(GL_UNSIGNED_BYTE), nil)
-        
-        // DrawElementsBaseVertex
-        //        #if os(OSX)
-        //        modelMatrix = GLKMatrix4MakeTranslation(1.0, 0.0, -5.0)
-        //        withUnsafePointer(to: &modelMatrix.m) {
-        //            $0.withMemoryRebound(to: GLfloat.self, capacity: mComponents, {ptr in
-        //                glProgramUniformMatrix4fvEXT(program.program, modelMatrixLoc, 1, GLboolean(GL_FALSE), ptr)
-        //            })
-        //        }
-        //        gldrawelementsBaseVertex(
-        //        #endif
-        
-        // DrawArraysInstanced
-        modelMatrix = GLKMatrix4MakeTranslation(3.0, 0.0, -5.0)
-        withUnsafePointer(to: &modelMatrix.m) {
-            $0.withMemoryRebound(to: GLfloat.self, capacity: components) {ptr in
-                glProgramUniformMatrix4fvEXT(program.program, location, 1, GLboolean(GL_FALSE), ptr)
-            }
-        }
-        glDrawArraysInstanced(GLenum(GL_TRIANGLES), 0, 3, 1);
-        
-        
+        glDrawElements(GLenum(GL_TRIANGLES), GLsizei(Indices.count), GLenum(GL_UNSIGNED_BYTE), nil)
         glBindVertexArrayOES(0)
-
     }
     
     public override func tearDown() {
