@@ -44,7 +44,7 @@ class ViewController: GLKViewController {
 //            view.drawableMultisample = .multisample4X;
 
         }
-        render = ExampleRender()
+        render = DrawCommandsRender()
         render.setup()
     }
     
